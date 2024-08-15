@@ -41,7 +41,6 @@ def train(model, train_data_loader, val_data_loader, experiment_name, log_wandb,
             # set the wandb project where this run will be logged
             project=project_name,
             name = experiment_name,
-            
             # track hyperparameters and run metadata
             config={
             "learning_rate": model.param_dict["MODEL"]["OPTIMIZATION"]["LR"],
@@ -61,7 +60,8 @@ def train(model, train_data_loader, val_data_loader, experiment_name, log_wandb,
     
     
     model.train()
-    model.cuda()
+    if torch.cuda.is_available():
+        model.cuda()
     weights = torch.tensor([0.1, 1000.0, 1.0]).to(device)
 
     loss_items = torch.zeros(2,1)

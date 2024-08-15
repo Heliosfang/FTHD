@@ -7,3 +7,4 @@ fthd/data/Denoised_IAC_DATA/denoised_csv_*RNN_val.npz
 fthd/model/__pycache__/*
 fthd/real_report_data/benchmark/__pycache__/*
 fthd/train/__pycache__/*
+fthd.egg-info/*

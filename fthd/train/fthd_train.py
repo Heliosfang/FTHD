@@ -53,7 +53,8 @@ def train(model, train_data_loader, val_data_loader, experiment_name, log_wandb,
     qualified_loss_min = torch.inf
     
     model.train()
-    model.cuda()
+    if torch.cuda.is_available():
+        model.cuda()
     weights = torch.tensor([1.0, 1.0, 1.0]).to(device)
 
     loss_items = torch.zeros(2,1)

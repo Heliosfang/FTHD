@@ -16,12 +16,13 @@ classifiers = [
 ]
 dependencies = [
     "matplotlib",
-    "numpy",
+    "numpy==1.26.4",
     "torch",
     "wandb",
     "ray[tune]",
     "scikit-learn",
     "tqdm",
-    "argcomplete"
+    "argcomplete",
+    "optuna"
 ]
 dynamic = ["version"]
