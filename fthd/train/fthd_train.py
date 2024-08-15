@@ -156,7 +156,7 @@ def train(model, train_data_loader, val_data_loader, experiment_name, log_wandb,
             val_loss_accum += val_loss.item()
             val_steps += 1
             
-        print(train_steps)
+        # print(train_steps)
         mean_train_loss = train_loss_accum / train_steps
         mean_val_loss = val_loss_accum / val_steps
         rmse_val_vx = np.sqrt(val_vx_accum / val_steps)
