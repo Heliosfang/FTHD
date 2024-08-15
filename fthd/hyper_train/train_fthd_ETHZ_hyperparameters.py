@@ -58,7 +58,7 @@ def tune_hyperparams(hyperparam_config, model_cfg, log_wandb,formatted_time):
     
     dataset_file = os.path.join(dir_name,"data","ETHZ","DYN-PP-ETHZ_{}RNN_val.npz".format(hyperparam_config["horizon"]))
     
-    project_name = "opensource_test"
+    project_name = "opensource_test2"
 
     with open(model_cfg, 'rb') as f:
         param_dict = yaml.load(f, Loader=yaml.SafeLoader)
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     import argparse, argcomplete
     parser = argparse.ArgumentParser(description="Tune hyperparameters of a model")
     parser.add_argument("model_cfg", type=str, help="Config file for model. Hyperparameters listed in the dictionary will be overwritten")
-    parser.add_argument("--log_wandb", type=bool, default=True, help="Log experiment in wandb")
+    parser.add_argument("--log_wandb", action='store_true', help="Log experiment in wandb")
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
     argdict : dict = vars(args)

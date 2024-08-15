@@ -123,7 +123,7 @@ if __name__ == "__main__":
     import argparse, argcomplete
     parser = argparse.ArgumentParser(description="Tune hyperparameters of a model")
     parser.add_argument("model_cfg", type=str, help="Config file for model. Hyperparameters listed in the dictionary will be overwritten")
-    parser.add_argument("--log_wandb", type=bool, default=True, help="Log experiment in wandb")
+    parser.add_argument("--log_wandb", action='store_true', help="Log experiment in wandb")
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
     argdict : dict = vars(args)

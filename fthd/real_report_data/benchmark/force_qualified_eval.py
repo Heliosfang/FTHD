@@ -147,7 +147,8 @@ for j,filename in enumerate(pth_files):
                                                             data_npy["times_features"],data_npy["times"])
     
     val_data_loader = torch.utils.data.DataLoader(dataset, batch_size=int(extracted_values['batch']), shuffle=False, drop_last=True)
-    model.cuda()
+    if torch.cuda.is_available():
+        model.cuda()
     model.eval()
     
     if model.is_rnn:
