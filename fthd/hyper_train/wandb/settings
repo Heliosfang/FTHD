@@ -1,5 +1,0 @@
-[default]
-entity = sfang10
-project = windows_test_fthd
-base_url = https://api.wandb.ai
-
