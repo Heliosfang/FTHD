@@ -1,104 +1,225 @@
 # Fine Tuning Hybrid Dynamics
 
-Deep Dynamics is a physics-informed neural network (PINN) designed to model the complex dynamics observed in a high-speed, competitive racing environment. Using a historical horizon of the vehicle's state and control inputs, Deep Dynamics learns to produce accurate coefficient estimates for a dynamic single-track model that best describes the vehicle's motion. Specifically, this includes Pacejka Magic Formula coefficients for the front and rear wheels, coefficients for a linear drivetrain model, and the vehicle's moment of inertia. The Physics Guard layer ensures that estimated coefficients always lie within their physically-meaningful range, determined by the meaning behind each coefficient.
+Fine Tuning Hybrid Dynamics (FTHD) is a physics-informed neural network (PINN) that used to model dynamics vehicle model, estimate the tire model coefficients and predict the velocity at next time step. The model used in this source is a bicycle dynamics model with state [vx, vy, omega, throttle, steering] and control [pwm\throttle_cmd, steering_cmd].
+
+Compared to recent developed supervised PINN such as [Deep Dynamics Model (DDM)](https://github.com/linklab-uva/deep-dynamics.git), FTHD use hybrid loss function (both supervised and unsupervised method) to reduce the requirements of the amount of training data and reach a better estimation results. It picked a supervised only model e.g. DDM and perform fine-tuning and hybrid training based on it. The data used in simulation is collected from [Bayesrace vehicle dynamics simulator](https://github.com/jainachin/bayesrace), where a scaled vehicle is simulated and data is collected throught pure-chase experiments.
+
+Extended-Kalman-Filtered FTHD (EKF-FTHD) is developed to handle noisy data that collected from real world, example use data collected in [Indy Autonomous Challenge](https://www.indyautonomouschallenge.com/) run by the [Cavalier Autonomous Racing Team](https://autonomousracing.dev/), EKF-FTHD is a data process model that filtered the noisy data while still retain the dynamics relationship between each states. It is also capable to identify the ranges used to estimate the unknown parameters whose ranges are still unknown.
 
 ## Installation
+
+Package is both tested in Ubuntu20.04 and Win11, working both cpu and gpu, please install cuda toolkit before gpu training, Ubuntu system recommended for wandb and raytune hyperparameter training. 
 
 It is recommended to create a new conda environment:
 
 ```
-conda create --name deep_dynamics python=3.10
-conda activate deep_dynamics
+conda create --name fthd python=3.10
+conda activate fthd
 ```
 
-To install Deep Dynamics:
+To install FTHD:
 
 ```
-git clone git@github.com:linklab-uva/deep-dynamics.git
-cd deep-dynamics/
+git clone git@github.com:Heliosfang/FTHD.git
+cd fthd/
 pip install -e .
 ```
 
-## Processing Data
-
-Data collected from the [Bayesrace vehicle dynamics simulator](https://github.com/jainachin/bayesrace) and the AV-21 full-scale autonomous racecar competing in the [Indy Autonomous Challenge](https://www.indyautonomouschallenge.com/) run by the [Cavalier Autonomous Racing Team](https://autonomousracing.dev/) is provided for training and testing.
+## Processing Simulation Data
 
 Bayesrace:
 ```
-1. deep_dynamics/data/DYN-PP-ETHZ.npz
-2. deep_dynamics/data/DYN-PP-ETHZMobil.npz
-```
-
-Indy Autonomous Challenge (IAC):
-```
-1. deep_dynamics/data/LVMS_23_01_04_A.csv
-2. deep_dynamics/data/LVMS_23_01_04_B.csv
-3. deep_dynamics/data/Putnam_park2023_run2_1.csv
-4. deep_dynamics/data/Putnam_park2023_run4_1.csv
-5. deep_dynamics/data/Putnam_park2023_run4_2.csv
+fthd/data/ETHZ/DYN-PP-ETHZ.npz
 ```
 
 To convert data from Bayesrace to the format needed for training:
 
 ```
 cd tools/
-./bayesrace_parser.py {path to dataset} {historical horizon size}
 ```
 
-Historical horizon size refers to the number of historical state and control input pairs used as features during training. The process is similar for IAC data:
+If you want a hyperparameter training, e.g. `20` selected horizon number for the history state and control used for prediction. 
+
+In ubuntu terminal:
 
 ```
-cd tools/
-./csv_parser.py {path to dataset} {historical horizon size}
+for i in {1..20}; do
+    python bayesrace_parser_timeverify.py ../data/ETHZ/DYN-PP-ETHZ.npz $i
+done
 ```
 
-The resulting file will be stored under `{path to dataset}_{historical_horizon_size}.npz`.
+In windows powershell:
+```
+for ($i = 1; $i -le 20; $i++) {
+    python bayesrace_parser_timeverify.py ..\data\ETHZ\DYN-PP-ETHZ.npz $i
+}
+```
+
+The generated data files will be in the same folder of the original data.
+
+## Real Experiment Data Processing
+
+Indy Autonomous Challenge (IAC):
+```
+fthd/data/IAC_EKF_DATA/Putnam_park2023_run4_2.csv
+```
+
+Instead of train the real noisy data directly, use EKF-FTHD for the data processing, it is recommended to use hyperparameter training to find the best configuration of the model, make sure you are in tools folder first.
+
+In ubuntu terminal:
+
+```
+for i in {1..20}; do
+    python csv_fthd_timeverify.py ../data/IAC_EKF_DATA/Putnam_park2023_run4_2.csv $i
+done
+```
+
+In windows powershell:
+```
+for ($i = 1; $i -le 20; $i++) {
+    python csv_fthd_timeverify.py ..\data\IAC_EKF_DATA\Putnam_park2023_run4_2.csv $i
+}
+```
+
+## FTHD training
+To start the EKF-FTHD training, after finishing above steps, for a default demo of single training on the `Bayesrace` simulation data, start from `tools` folder:
+
+```
+cd ..
+cd train
+python fthd_train.py ../cfgs/fthd.yaml ../data/ETHZ/DYN-PP-ETHZ_5RNN_val.npz
+```
+
+The estimated tire model's parameters will be printed after the training is done.
+The trained model will be stored in `output/fthd_test/{YYYY}-{MM}-{DD}_{HH}_{MM}_{SS}/finetuned_model.pth`
+
+## EKF-FTHD data processing
+
+To start the EKF-FTHD training, after finishing above steps, for a default demo of single training, start from `tools` folder:
+```
+cd ..
+cd train
+python fthd_ekf.py ../cfgs/fthd_iac_ekf.yaml ../data/IAC_EKF_DATA/Putnam_park2023_run4_2_19RNN_Val.npz
+```
+
+Once training is done, the processed dataset will be stored in `output/fthd_iac_ekf/supervised_test/{YYYY}-{MM}-{DD}_{HH}_{MM}_{SS}/denoised_csv.npz`
+
+## Denoised data processing
+
+To get the real experiment's estimated dynamic parameters i.e. the estimated tire model's coefficients or a FTHD state prediction model, we first process the denoised data get from EKF-FTHD (an example data is already uploaded for convenience):
+
+in tools folder (cd tools)
+
+In ubuntu terminal:
+
+```
+for i in {1..20}; do
+    python csv_denoised_parser_timeverify.py ../data/Denoised_IAC_DATA/denoised_csv.npz $i
+done
+```
+
+In windows powershell:
+```
+for i in {1..20}; do
+    python csv_denoised_parser_timeverify.py ..\data\Denoised_IAC_DATA\denoised_csv.npz $i
+done
+```
+
+Now the filtered data is ready for training, similar to simulation, for a default demo of single training, start from `tools` folder
+
+```
+cd ..
+cd train
+python fthd_train.py ../cfgs/fthd_iac.yaml ../data/Denoised_IAC_DATA/denoised_csv_15RNN_val.npz
+```
+
+## Hypertraining
+
+In order to perform a hypertraining process to get the best configuration of model and results, make sure your anaconda is install in C: for windows as errors will happen due to wandb and raytune if the environment and package are in different partition. For Ubuntu20.04, there's no need to worry about it.
+
+For the first time use, sign up wandb: (https://wandb.ai/site)
+
+Follow the instruction and create a new project, copy the `key` in the page.
+At the terminal, make sure you are in the fthd environment:
+```
+wandb login
+```
+At prompt, paste your `key` found in wandb project page. 
+
+Open a new terminal, start from fthd folder:
+
+```
+cd hyper_train
+```
+By default, wandb is not used. To use wandb to log during training, add `--log_wandb` at the end, trials are run using the [RayTune scheduler](https://docs.ray.io/en/latest/tune/index.html).:
+
+### Hypertraining of FTHD with data in simulation
+```
+python train_fthd_ETHZ_hyperparameters.py ../cfgs/fthd.yaml --log_wandb
+```
+If using wandb for recording, you can find the best configurations and get the model in folder, e.g. `output/fthd/2024-08-14_17_41_00/6layers_31neurons_64batch_0.002268lr_12horizon_2gru/`, with name `finetuned_model.pth`.
+### Hypertraining of EKF-FTHD
+```
+python train_fthd_EKF_IAC_hyperparameters.py ../cfgs/fthd_iac_ekf.yaml --log_wandb
+```
+If using wandb for recording, you can find the best configurations and get the processed data in folder, e.g. `output/fthd_iac_ekf/2024-08-14_17_41_00/6layers_31neurons_64batch_0.002268lr_12horizon_2gru/` with name `denoised_csv.npz`.
+### Hypertraining of FTHD with data in real experiment
+```
+python train_fthd_IAC_hyperparameters.py ../cfgs/fthd_iac.yaml --log_wandb
+```
+If using wandb for recording, you can find the best configurations and get the model in folder, e.g. `output/fthd_iac/2024-08-14_17_41_00/6layers_31neurons_64batch_0.002268lr_12horizon_2gru/`, with name `finetuned_model.pth`.
+
 
 ## Model Configuration
 
-Configurations for Deep Dynamics and the closely related [Deep Pacejka Model](https://arxiv.org/pdf/2207.07920.pdf) are provided under `deep_dynamics/cfgs/`. The items listed under `PARAMETERS` are the variables estimated by each model. The ground-truth coefficient values used for the Bayesrace simulator are displayed next to each coefficient (i.e. `Bf: 5.579` indicates the coefficient Bf was set to 5.579). The ground-truth values are only used for evaluation purposes, they are not accessible to the models during training. The Physics Guard layer requires ranges for the coefficients estimated by Deep Dynamics and can be specified with the `Min` and `Max` arguments.
+This work is an extended work based on [DDM](git@github.com:linklab-uva/deep-dynamics.git) (https://ieeexplore.ieee.org/abstract/document/10499707), FTHD proves using hybrid PINN (supervised loss to the label and unsupervised differential loss to the inside of model) could give higher accuracy and use less size of data for training.
 
-Certain properties for the vehicle are required for training. Provided under `VEHICLE_SPECS`, this includes the vehicle's mass and the distance from the vehicle's center of gravity (COG) to the front and rear axles (`lf` and `lr`). The Deep Pacejka Model also requires the vehicle's moment of inertia (`Iz`) is specified.
+Configurations for FTHD are provided under `fthd/cfgs/`. The items listed under `PARAMETERS` are the variables estimated by each model. With the value behind each parameters represent the ground truth, which is provided directly from `bayesrace` simulator and unknown from the real experiment. Besides the parameters of the tire model (B,C,etc.), `Q, R (Qvx, Rvy, etc.)` are used in the EKF-FTHD which contribute to the extended kalman filter, it only effects in EKF-FTHD and not take part in FTHD.
+Other specification could be found under [DDM](git@github.com:linklab-uva/deep-dynamics.git).
 
-Under `MODEL`, the layers for each model can be specified. The `HORIZON` refers to the historical horizon of state and control inputs used as features. Under `LAYERS`, the input and hidden layers of the model can be specified. Lastly, the optimization parameters are provided under `OPTIMIZATION`.
+## Result analyse
 
-## Model Training
-
-To run an individual training experiment, use:
-
-```
-cd deep_dynamics/model/
-python3 train.py {path to cfg} {path to dataset} {name of experiment}
-```
-
-The optional flag `--log_wandb` can also be added to track results using the [Weights & Biases Platform](https://wandb.ai/site). Model weights will be stored under `../output/{name of experiment}` whenever the validation loss decreases below the previous minima.
-
-To run multiple trials in parallel for hyperparameter tuning, use:
+Demo of result analyse
+### For simulation results:
 
 ```
-cd deep_dynamics/model/
-python3 tune_hyperparameters.py {path to cfg}
+cd report_data
 ```
-
-The desired dataset must be manually specified within `tune_hyperparameters.py` as well as the ranges for the hyperparameter tuning experiment. Trials are run using the [RayTune scheduler](https://docs.ray.io/en/latest/tune/index.html).
-
-## Model Evaluation
-
-To evaluate an individual model, use:
+Run
+```
+python Simulated_data_analys.py
+```
+for parameters comparison.
 
 ```
-cd deep_dynamics/model/
-python3 evaluate.py {path to cfg} {path to dataset} {path to model weights}
+cd benchmark
+python force_qualified.py
 ```
+for Lateral forces comparison.
 
-This will evaluate the model's RMSE and maximum error for the predicted state variables across the specified dataset. Additionally, the optional flag `--eval_coeffs` can be used to compare the mean and standard deviation of the model's internally estimated coefficients.
-
-To evaluate multiple trials from hyperparameter tuning, use:
+### For real experiments results:
 
 ```
-cd deep_dynamics/model/
-python3 test_hyperparameters.py {path to cfg}
+cd real_report_data
+cd benchmark
 ```
+Run
+```
+python speed_qualified_eval.py
+```
+for state prediction comparison.
+
+```
+python force_qualified_eval.py
+```
+for dynamical force prediction comparison.
+
+### For EKF-FTHD filtered data comparison:
+```
+cd tools
+python csv_denoised_plot.py ekf_denoised_data/denoised_csv1.npz 1
+```
+This shows the difference between the EKF-FTHD filtered data and the data through a Savitzky-Golay filter.
 
 You can cite this work using:
 
@@ -112,5 +233,3 @@ You can cite this work using:
       primaryClass={cs.RO}
 }
 ```
-
-You can also read my Master's thesis on this work [here](https://libraetd.lib.virginia.edu/public_view/qr46r2095) :)
