@@ -172,10 +172,10 @@ If using wandb for recording, you can find the best configurations and get the m
 
 ## Model Configuration
 
-This work is an extended work based on [DDM](git@github.com:linklab-uva/deep-dynamics.git) (https://ieeexplore.ieee.org/abstract/document/10499707), FTHD proves using hybrid PINN (supervised loss to the label and unsupervised differential loss to the inside of model) could give higher accuracy and use less size of data for training.
+This work is an extended work based on [DDM](https://github.com/linklab-uva/deep-dynamics.git) (https://ieeexplore.ieee.org/abstract/document/10499707), FTHD proves using hybrid PINN (supervised loss to the label and unsupervised differential loss to the inside of model) could give higher accuracy and use less size of data for training.
 
 Configurations for FTHD are provided under `fthd/cfgs/`. The items listed under `PARAMETERS` are the variables estimated by each model. With the value behind each parameters represent the ground truth, which is provided directly from `bayesrace` simulator and unknown from the real experiment. Besides the parameters of the tire model (B,C,etc.), `Q, R (Qvx, Rvy, etc.)` are used in the EKF-FTHD which contribute to the extended kalman filter, it only effects in EKF-FTHD and not take part in FTHD.
-Other specification could be found under [DDM](git@github.com:linklab-uva/deep-dynamics.git).
+Other specification could be found under [DDM](https://github.com/linklab-uva/deep-dynamics.git).
 
 ## Result analyse
 
