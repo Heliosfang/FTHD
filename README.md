@@ -230,16 +230,3 @@ cd tools
 python csv_denoised_plot.py ekf_denoised_data/denoised_csv1.npz 1
 ```
 This shows the difference between the EKF-FTHD filtered data and the data through a Savitzky-Golay filter.
-
-You can cite this work using:
-
-```
-@misc{chrosniak2023deep,
-      title={Deep Dynamics: Vehicle Dynamics Modeling with a Physics-Informed Neural Network for Autonomous Racing}, 
-      author={John Chrosniak and Jingyun Ning and Madhur Behl},
-      year={2023},
-      eprint={2312.04374},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO}
-}
-```
