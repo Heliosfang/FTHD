@@ -6,6 +6,16 @@ Compared to recent developed supervised PINN such as [Deep Dynamics Model (DDM)]
 
 Extended-Kalman-Filtered FTHD (EKF-FTHD) is developed to handle noisy data that collected from real world, example use data collected in [Indy Autonomous Challenge](https://www.indyautonomouschallenge.com/) run by the [Cavalier Autonomous Racing Team](https://autonomousracing.dev/), EKF-FTHD is a data process model that filtered the noisy data while still retain the dynamics relationship between each states. It is also capable to identify the ranges used to estimate the unknown parameters whose ranges are still unknown.
 
+The conference paper of this research including FTHD is already accepted by MECC2024 conference and can be cited using:
+```
+@UNPUBLISHED{FangMECC2024UP,
+ 		AUTHOR    =  "Shiming Fang and Kaiyan Yu",
+ 		TITLE     = "{Fine-tuning hybrid physics-informed neural networks for vehicle dynamics
+ 		model estimation}",
+ 		NOTE = "To appear in \textit{Proc. Modeling Estimation Control Conf.}, Chicago, IL, USA, 2024"}
+```
+And the extended journal paper including EKF-FTHD is submitted to IEEE Intelligent Transportation Systems Transactions and currently under review. 
+
 ## Installation
 
 Package is both tested in Ubuntu20.04 and Win11, working both cpu and gpu, please install cuda toolkit before gpu training, Ubuntu system recommended for wandb and raytune hyperparameter training. 
