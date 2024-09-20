@@ -1,20 +1,23 @@
 # Fine Tuning Hybrid Dynamics
 
-Fine Tuning Hybrid Dynamics (FTHD) is a physics-informed neural network (PINN) that used to model dynamics vehicle model, estimate the tire model coefficients and predict the velocity at next time step. The model used in this source is a bicycle dynamics model with state [vx, vy, omega, throttle, steering] and control [pwm\throttle_cmd, steering_cmd].
+In this work, we introduce **Fine Tuning Hybrid Dynamics (FTHD)**, a novel physics-informed neural network (PINN) model that integrates hybrid loss functions to model vehicle dynamics, estimate tire model coefficients, and predict next-step velocity. We also propose **Extended-Kalman-Filtered FTHD (EKF-FTHD)** to preprocess noisy real-world data while preserving essential physical relationships between states and controls. The vehicle model used in this study is a bicycle dynamics model, with states including [vx, vy, omega, throttle, steering] and control inputs [pwm/throttle_cmd, steering_cmd].
 
-Compared to recent developed supervised PINN such as [Deep Dynamics Model (DDM)](https://github.com/linklab-uva/deep-dynamics.git), FTHD use hybrid loss function (both supervised and unsupervised method) to reduce the requirements of the amount of training data and reach a better estimation results. It picked a supervised only model e.g. DDM and perform fine-tuning and hybrid training based on it. The data used in simulation is collected from [Bayesrace vehicle dynamics simulator](https://github.com/jainachin/bayesrace), where a scaled vehicle is simulated and data is collected throught pure-chase experiments.
+Compared to recent developed supervised PINN models, such as the [Deep Dynamics Model (DDM)](https://github.com/linklab-uva/deep-dynamics.git), FTHD employs a hybrid loss function that combines both supervised and unsupervised methods. This approach reduces the dependency on large training datasets while achieving more accurate estimation results. FTHD builds upon a supervised-only model, e.g., DDM, by performing fine-tuning and hybrid training. The simulation data used is collected from the [Bayesrace vehicle dynamics simulator](https://github.com/jainachin/bayesrace), where scaled vehicle dynamics are simulated, and data is gathered through pure-chase experiments.
 
-Extended-Kalman-Filtered FTHD (EKF-FTHD) is developed to handle noisy data that collected from real world, example use data collected in [Indy Autonomous Challenge](https://www.indyautonomouschallenge.com/) run by the [Cavalier Autonomous Racing Team](https://autonomousracing.dev/), EKF-FTHD is a data process model that filtered the noisy data while still retain the dynamics relationship between each states. It is also capable to identify the ranges used to estimate the unknown parameters whose ranges are still unknown.
+Additionally, EKF-FTHD is designed to handle noisy real-world experimental data, such as data collected during the [Indy Autonomous Challenge](https://www.indyautonomouschallenge.com/) by the [Cavalier Autonomous Racing Team](https://autonomousracing.dev/). EKF-FTHD acts as a data processing model that filters noisy data while maintaining the dynamic relationships between states. It can also identify ranges for unknown parameters during the estimation process.
 
-The conference paper of this research including FTHD is already accepted by MECC2024 conference and can be cited using:
+The development of FTHD has been accepted for presentation at the **2024 Modeling, Estimation, and Control Conference (MECC)** and can be cited as follows:
 ```
-@UNPUBLISHED{FangMECC2024UP,
- 		AUTHOR    =  "Shiming Fang and Kaiyan Yu",
- 		TITLE     = "{Fine-tuning hybrid physics-informed neural networks for vehicle dynamics
- 		model estimation}",
- 		NOTE = "To appear in \textit{Proc. Modeling Estimation Control Conf.}, Chicago, IL, USA, 2024"}
+@INPROCEEDINGS{FangMECC2024,
+AUTHOR = "Shiming Fang and Kaiyan Yu",
+TITLE = "{Fine-tuning hybrid physics-informed neural networks for vehicle dynamics model estimation}",
+BOOKTITLE = "Proc. Modeling Estimation Control Conf.",
+ADDRESS = "Chicago, IL, USA",
+NOTE = "to appear",
+YEAR = "2024"
+}
 ```
-And the extended journal paper including EKF-FTHD is submitted to IEEE Intelligent Transportation Systems Transactions and currently under review. 
+An extended journal paper, including EKF-FTHD, has been submitted to **IEEE Transactions on Intelligent Transportation Systems** and is currently under review.
 
 ## Installation
 
