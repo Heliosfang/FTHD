@@ -41,8 +41,8 @@ conda activate fthd
 To install FTHD:
 
 ```
-git clone git@github.com:Heliosfang/FTHD.git
-cd fthd/
+git clone https://github.com/Heliosfang/FTHD.git
+cd FTHD/
 pip install -e .
 ```
 
