@@ -1,0 +1,118 @@
+STATE:
+  - VX
+  - VY
+  - YAW_RATE
+  - THROTTLE_FB
+  - STEERING_FB
+ACTIONS:
+  - THROTTLE_CMD
+  - STEERING_CMD
+PARAMETERS:
+  - Bf:
+    Min: 1.0
+    Max: 20.0
+  - Cf:
+    Min: 0.1
+    Max: 1.5
+  - Df:
+    Min: 0.1
+    Max: 64.0
+  - Ef:
+    Min: -2.0
+    Max: 5
+  - Br:
+    Min: 1.0
+    Max: 20.0
+  - Cr:
+    Min: 0.1
+    Max: 1.5
+  - Dr:
+    Min: 0.1
+    Max: 64.0
+  - Er:
+    Min: -2.0
+    Max: 10.0
+  - Cm1:
+    Min: 100.0
+    Max: 10000.0  
+  - Cm2:
+    Min: 0.0
+    Max: 5.0
+  - Cr0:
+    Min: 0.1
+    Max: 1.4
+  - Cr2:
+    Min: 0.1
+    Max: 1.0
+  - Iz: 
+    Min: 1.6
+    Max: 6.4
+  - Shf:
+    Min: -0.02
+    Max: 0.2
+  - Svf: 
+    Min: -16
+    Max: 2.4
+  - Shr:
+    Min: -0.02
+    Max: 0.2
+  - Svr:
+    Min: -16
+    Max: 2.4
+  - Qvx:
+    Min: 0.1
+    Max: 1
+  - Qvy:
+    Min: 0.1
+    Max: 1
+  - QyawRate:
+    Min: 0.1
+    Max: 1
+  - Rvx:
+    Min: 0.01
+    Max: 1
+  - Rvy:
+    Min: 0.01
+    Max: 1
+  - RyawRate:
+    Min: 0.0001
+    Max: 0.01
+  - MaxDelta:
+    Min: 17.0
+    Max: 45.0
+VEHICLE_SPECS:
+  lf: 0.4
+  lr: 0.38
+  mass: 15.15
+MODEL:
+  NAME: FTHD51
+  HORIZON: 19
+  LAYERS:
+    - GRU:
+      OUT_FEATURES: 361
+      LAYERS: 1
+    - DENSE:
+      OUT_FEATURES: 153
+      ACTIVATION: Mish
+    - DENSE:
+      OUT_FEATURES: 153
+      ACTIVATION: Mish
+    - DENSE:
+      OUT_FEATURES: 153
+      ACTIVATION: Mish
+    # - DENSE:
+    #   OUT_FEATURES: 52
+    #   ACTIVATION: Mish
+    # - DENSE:
+    #   OUT_FEATURES: 52
+    #   ACTIVATION: Mish
+    # - DENSE:
+    #   OUT_FEATURES: 52
+    #   ACTIVATION: Mish
+  OPTIMIZATION:
+    LOSS: MSE
+    BATCH_SIZE: 64
+    NUM_EPOCHS: 1000
+    # NUM_EPOCHS: 15000
+    OPTIMIZER: Adam
+    LR: 0.000657

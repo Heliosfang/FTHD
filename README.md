@@ -141,9 +141,9 @@ done
 
 In windows powershell:
 ```
-for i in {1..20}; do
-    python csv_denoised_parser_timeverify.py ..\data\Denoised_IAC_DATA\denoised_csv.npz $i
-done
+for ($i = 1; $i-le 20; $i++) {
+    python .\csv_denoised_parser_timeverify.py ..\data\Denoised_IAC_DATA\denoised_csv.npz $i
+}
 ```
 
 Now the filtered data is ready for training, similar to simulation, for a default demo of single training, start from `tools` folder
