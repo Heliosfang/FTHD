@@ -45,7 +45,7 @@ def main(model_cfg, log_wandb):
         resources_per_trial={"cpu": 3, "gpu": 1/6},
         config=config,
         num_samples=200,
-        max_concurrent_trials=1,
+        max_concurrent_trials=4,
         scheduler=scheduler,
         storage_path=os.path.join(dir_name,"ray_results"),
         
@@ -56,9 +56,9 @@ def main(model_cfg, log_wandb):
 def tune_hyperparams(hyperparam_config, model_cfg, log_wandb,formatted_time):
     dir_name = os.path.split(os.path.dirname(__file__))[0]
     
-    dataset_file = os.path.join(dir_name,"data","racecar51","racecar51_{}RNN_Val.npz".format(hyperparam_config["horizon"]))
+    dataset_file = os.path.join(dir_name,"data","racecar51","racecar51_{}RNN_val.npz".format(hyperparam_config["horizon"]))
     
-    project_name = "opensource_test_IAC"
+    project_name = "racecar51_EKF_FTHD"
 
     with open(model_cfg, 'rb') as f:
         param_dict = yaml.load(f, Loader=yaml.SafeLoader)
@@ -109,7 +109,8 @@ def tune_hyperparams(hyperparam_config, model_cfg, log_wandb,formatted_time):
     # val_dataset = string_to_dataset[param_dict["MODEL"]["NAME"]](val_data_npy["features"], val_data_npy["labels"],
     #                                                         val_data_npy["times_features"],val_data_npy["times"])
     
-    train_dataset, _ = dataset.split(0.05)
+    # train_dataset, _ = dataset.split(0.90)
+    train_dataset = dataset
     
     train_data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=hyperparam_config["batch_size"], shuffle=True, drop_last=True)
     val_data_loader = torch.utils.data.DataLoader(dataset, batch_size=hyperparam_config["batch_size"], shuffle=False, drop_last=True)

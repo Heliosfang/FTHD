@@ -109,7 +109,7 @@ def tune_hyperparams(hyperparam_config, model_cfg, log_wandb,formatted_time):
     # val_dataset = string_to_dataset[param_dict["MODEL"]["NAME"]](val_data_npy["features"], val_data_npy["labels"],
     #                                                         val_data_npy["times_features"],val_data_npy["times"])
     
-    train_dataset, _ = dataset.split(0.05)
+    train_dataset, _ = dataset.split(0.90)
     
     train_data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=hyperparam_config["batch_size"], shuffle=True, drop_last=True)
     val_data_loader = torch.utils.data.DataLoader(dataset, batch_size=hyperparam_config["batch_size"], shuffle=False, drop_last=True)
