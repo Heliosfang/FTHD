@@ -14,6 +14,7 @@ from datetime import datetime
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
+    print("cuda is available !")
 else:
     device = torch.device("cpu")
 class MultiLossWrapper(nn.Module):
